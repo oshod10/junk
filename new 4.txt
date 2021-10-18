@@ -1,0 +1,14 @@
+#check the current cURL version
+curl -V
+#download the cURL repo
+rpm -Uvh http://www.city-fan.org/ftp/contrib/yum-repo/city-fan.org-release-2-1.rhel7.noarch.rpm
+#Enable the repo
+subscription-manager repos --enable=city-fan-.org
+#download repo for http2 - used by cURL
+rpm -Uvh https://download-ib01.fedoraproject.org/pub/epel/7/aarch64/Packages/e/epel-release-7-12.noarch.rpm
+#install http2 library from the repo downloaded above
+yum install libnghttp2
+#update cURL package
+yum update curl
+#check the cURL version again. Should be 7.79.1
+curl -V
