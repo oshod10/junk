@@ -1,0 +1,25 @@
+
+set lines 200
+set pages 1000
+col status for a10
+col from_version for a25
+col to_version for a25
+col comments for a35
+var x refcursor;
+declare
+    res varchar2(32000);
+begin
+    res := 'select * from ('||chr(10);
+    for rec in (select 'select '''||owner||''' as schema_name, day, from_version, to_version, status, comments, ignore_gap, base_schema, upgrade_type '
+                ||' from (select p.*, row_number() over (partition by upgrade_type order by day desc) rn from '
+                ||owner||'.db_version p ) t where rn = 1 union' x 
+                from dba_tables d where table_name = 'DB_VERSION' and owner not like '%LAB%' 
+                and exists (select 1 from dba_tab_columns 
+                            where owner = d.owner and table_name = d.table_name and column_name = 'UPGRADE_TYPE')
+                order by owner) loop 
+        res := res || rec.x || chr(10);
+    end loop; 
+    res := rtrim(res, 'union'||chr(10)) || chr(10)||') order by schema_name, day desc '; 
+    open :x for res; 
+end;
+print x;
